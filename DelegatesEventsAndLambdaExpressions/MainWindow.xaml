@@ -9,7 +9,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
         </Grid.ColumnDefinitions>
-        <TextBox x:Name="uploadTextbox" HorizontalAlignment="Left" Height="57" Margin="77,70,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="199" />
+        <TextBox x:Name="uploadTextbox" HorizontalAlignment="Left" Height="57" Margin="77,70,0,0" TextWrapping="Wrap" Text="What do you want to upload..." VerticalAlignment="Top" Width="245" GotFocus="UploadTextbox_GotFocus" />
         <Button Name="Execute" Content="Execute" HorizontalAlignment="Left" Margin="356,173,0,0" VerticalAlignment="Top" Width="105" Height="51" Click="ExecuteButton_Click" />
         <TextBox x:Name="TestTextbox" HorizontalAlignment="Left" Height="71" Margin="77,173,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="199" />
         <TextBox x:Name="textboxAnswer" HorizontalAlignment="Left" Height="72" Margin="77,268,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="199" />

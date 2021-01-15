@@ -28,8 +28,9 @@ namespace DelegatesEventsAndLambdaExpressions
         public MainWindow()
         {
             InitializeComponent();
-            Thread.Sleep(3000);
-            Bayooooo();
+            Thread.Sleep(4000);
+            uploadTextbox.Clear();
+            // Bayooooo();
         }
 
         private string GetTotalSavings(double[] monies, string customer)
@@ -44,12 +45,25 @@ namespace DelegatesEventsAndLambdaExpressions
 
         private string GetBalance(double[] monies, string customer)
         {
-            return $"{customer}'s balance is {monies}";
+            var totalBalance = 0d;
+            foreach (var money in monies)
+            {
+                totalBalance += money;
+            }
+            totalBalance -= 100;
+            return $"{customer}'s balance is {totalBalance}";
         }
 
         private string GetTellerCommission(double[] monies, string customer)
         {
-            return $"{customer}'s commission is {monies}";
+            var commision = 0d;
+            var total = 0d;
+            foreach (var money in monies)
+            {
+                total += money;
+            }
+            commision = 0.1 * total;
+            return $"{customer}'s commission is {commision}";
         }
 
         private AnonymousFunc anonymous = delegate (int amount, string title)
@@ -68,14 +82,22 @@ namespace DelegatesEventsAndLambdaExpressions
 
         public void UnzipperChecker(object source, UploadEventArgs args)
         {
-            MessageBox.Show($"Upload of {args.FileName} successful, unzipping the files."); // how to show unsuccessful .. // show the interface // use refactoring
+            MessageBox.Show($"Upload of {args.FileName} successful, unzipping the file.");
+            // I could also check IsEmpty(args.Filename) and launch a different messsage
         }
+
+        //public void EmptyChecker(object sender, UploadEventArgs e)
+        //{
+        //    MessageBox.Show("Upload files unsuccessful, zipping the file");
+        //}
 
         public void Bayooooo()
         {
-            var uploadHelper = new UploadHelper(); // creates an instance on the publisher
-            uploadHelper.S3Upload += UnzipperChecker; // subscribing to an event in the publisher
-            var result = uploadHelper.Upload("Avenger Endgame");
+            var fileName = uploadTextbox.Text;
+            var uploadHelper = new UploadHelper(); // creates an instance of the publisher
+            uploadHelper.S3Upload += UnzipperChecker; // subscribing to an event in the publisher and calling/firing a methoed
+            //uploadHelper.S3Upload += ZippedChecker; // subscribing to an event in the publisher and calling/firing a methoed
+            var result = uploadHelper.Upload(fileName);
             uploadTextbox.Text = result;
         }
 
@@ -98,7 +120,8 @@ namespace DelegatesEventsAndLambdaExpressions
 
         private void Clickme_Click(object sender, RoutedEventArgs e)
         {
-            TestTextbox.Text = "4ddd";
+            //TestTextbox.Text = "4ddd";
+            Bayooooo();
         }
 
         private void ExecuteButton_Click(object sender, RoutedEventArgs e)
@@ -122,14 +145,21 @@ namespace DelegatesEventsAndLambdaExpressions
 
             // ATM
         }
+
+        private void UploadTextbox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            uploadTextbox.Clear();
+        }
     }
 
     public class UploadHelper //publisher
     {
         ////Create a Delegate
         //public delegate void S3UploadEventHandler(object source, EventArgs args);
+
         ////Create an event based on the delegate
         //public event S3UploadEventHandler S3Upload;
+
         // Refactored loc using the predefined Eventhandler delegate
         public event EventHandler<UploadEventArgs> S3Upload;
 
@@ -137,7 +167,14 @@ namespace DelegatesEventsAndLambdaExpressions
         protected virtual void OnS3Upload(string fileName)
         {
             //S3Upload(this, EventArgs.Empty);
-            S3Upload?.Invoke(this, new UploadEventArgs() { FileName = fileName });
+            if (!IsEmpty(fileName))
+            {
+                S3Upload?.Invoke(this, new UploadEventArgs() { FileName = fileName });
+            }
+            else
+            {
+                S3Upload?.Invoke(this, new UploadEventArgs());
+            }
             // means 👇
             //if (S3Upload != null) // this is to ensure that if no subscriber is listening the event isn't raised
             //{
@@ -147,11 +184,28 @@ namespace DelegatesEventsAndLambdaExpressions
 
         public string Upload(string fileName)
         {
-            var text = "File uploading....";
-            Thread.Sleep(5000);
-            text += " Upload Complete!";
-            OnS3Upload(fileName); // use the event in a method
-            return text;
+            string text = "File Uploading....";
+
+            switch (IsEmpty(fileName))
+            {
+                case true:
+                    Thread.Sleep(2000);
+                    text += " Upload failed...\nNo file chosen";
+                    MessageBox.Show("Upload files unsuccessful, zipping the file", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return text;
+
+                default:
+                    Thread.Sleep(5000);
+                    text += " Upload Complete!";
+                    OnS3Upload(fileName); // using the event in a method
+                    return text;
+            }
+        }
+
+        public static bool IsEmpty(string fileName)
+        {
+            bool result = string.IsNullOrEmpty(fileName) || fileName.Trim().Length == 0;
+            return result;
         }
     }
 
