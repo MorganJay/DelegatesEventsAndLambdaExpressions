@@ -1,18 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace DelegatesEventsAndLambdaExpressions
 {
@@ -28,8 +16,6 @@ namespace DelegatesEventsAndLambdaExpressions
         public MainWindow()
         {
             InitializeComponent();
-            Thread.Sleep(4000);
-            uploadTextbox.Clear();
             // Bayooooo();
         }
 
@@ -95,8 +81,8 @@ namespace DelegatesEventsAndLambdaExpressions
         {
             var fileName = uploadTextbox.Text;
             var uploadHelper = new UploadHelper(); // creates an instance of the publisher
-            uploadHelper.S3Upload += UnzipperChecker; // subscribing to an event in the publisher and calling/firing a methoed
-            //uploadHelper.S3Upload += ZippedChecker; // subscribing to an event in the publisher and calling/firing a methoed
+            uploadHelper.S3Upload += UnzipperChecker; // subscribing to an event in the publisher and calling/firing a method
+            //uploadHelper.S3Upload += ZippedChecker;
             var result = uploadHelper.Upload(fileName);
             uploadTextbox.Text = result;
         }
@@ -167,14 +153,7 @@ namespace DelegatesEventsAndLambdaExpressions
         protected virtual void OnS3Upload(string fileName)
         {
             //S3Upload(this, EventArgs.Empty);
-            if (!IsEmpty(fileName))
-            {
-                S3Upload?.Invoke(this, new UploadEventArgs() { FileName = fileName });
-            }
-            else
-            {
-                S3Upload?.Invoke(this, new UploadEventArgs());
-            }
+            S3Upload?.Invoke(this, new UploadEventArgs() { FileName = fileName });
             // means 👇
             //if (S3Upload != null) // this is to ensure that if no subscriber is listening the event isn't raised
             //{
@@ -204,7 +183,7 @@ namespace DelegatesEventsAndLambdaExpressions
 
         public static bool IsEmpty(string fileName)
         {
-            bool result = string.IsNullOrEmpty(fileName) || fileName.Trim().Length == 0;
+            bool result = string.IsNullOrEmpty(fileName) || fileName.Trim().Length == 0 || fileName.Trim().Contains("What do you want to upload...");
             return result;
         }
     }
